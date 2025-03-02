@@ -1,24 +1,53 @@
-//
-//  ContentView.swift
-//  ToDoList
-//
-//  Created by Manuel Diaz on 3/1/25.
-//
-
 import SwiftUI
 
 struct ContentView: View {
+    @State private var tasks: [String] = UserDefaults.standard.stringArray(forKey: "tasks") ?? []
+    @State private var newTask: String = ""
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, World!")
+        NavigationView {
+            VStack {
+                HStack {
+                    TextField("Enter a new task", text: $newTask)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                    Button(action: addTask) {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.title)
+                    }
+                    .disabled(newTask.isEmpty)
+                }
+                .padding()
+
+                List {
+                    ForEach(tasks, id: \.self) { task in
+                        Text(task)
+                    }
+                    .onDelete(perform: deleteTask)
+                }
+            }
+            .navigationTitle("To-Do List")
         }
-        .padding()
+    }
+
+    func addTask() {
+        tasks.append(newTask)
+        saveTasks()
+        newTask = ""
+    }
+
+    func deleteTask(at offsets: IndexSet) {
+        tasks.remove(atOffsets: offsets)
+        saveTasks()
+    }
+
+    func saveTasks() {
+        UserDefaults.standard.set(tasks, forKey: "tasks")
     }
 }
 
-#Preview {
-    ContentView()
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
 }
+
